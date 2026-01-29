@@ -1,0 +1,128 @@
+-- QASYRSTORE HUB | SPEED HUB STYLE UI (VISIBLE)
+local Players = game:GetService("Players")
+local plr = Players.LocalPlayer
+local gui = Instance.new("ScreenGui", plr:WaitForChild("PlayerGui"))
+gui.Name = "QasyrStoreHub"
+gui.ResetOnSpawn = false
+
+-- MAIN
+local main = Instance.new("Frame", gui)
+main.Size = UDim2.fromScale(0.62,0.62)
+main.Position = UDim2.fromScale(0.19,0.19)
+main.BackgroundColor3 = Color3.fromRGB(20,20,20)
+main.BorderSizePixel = 0
+main.Active, main.Draggable = true, true
+Instance.new("UICorner", main).CornerRadius = UDim.new(0,14)
+
+-- TITLE BAR
+local top = Instance.new("Frame", main)
+top.Size = UDim2.new(1,0,0,44)
+top.BackgroundColor3 = Color3.fromRGB(30,30,30)
+top.BorderSizePixel = 0
+Instance.new("UICorner", top).CornerRadius = UDim.new(0,14)
+
+local title = Instance.new("TextLabel", top)
+title.Size = UDim2.new(1,0,1,0)
+title.BackgroundTransparency = 1
+title.Text = "QasyrStore HUB"
+title.Font = Enum.Font.GothamBold
+title.TextSize = 18
+title.TextColor3 = Color3.fromRGB(255,255,255)
+
+-- LEFT TABS
+local tabs = Instance.new("Frame", main)
+tabs.Position = UDim2.new(0,0,0,44)
+tabs.Size = UDim2.new(0.26,0,1,-44)
+tabs.BackgroundColor3 = Color3.fromRGB(26,26,26)
+tabs.BorderSizePixel = 0
+
+local tpad = Instance.new("UIPadding", tabs)
+tpad.PaddingTop = UDim.new(0,10)
+
+local tlayout = Instance.new("UIListLayout", tabs)
+tlayout.Padding = UDim.new(0,8)
+tlayout.HorizontalAlignment = Center
+
+-- RIGHT CONTENT
+local content = Instance.new("Frame", main)
+content.Position = UDim2.new(0.26,8,0,52)
+content.Size = UDim2.new(0.74,-16,1,-60)
+content.BackgroundColor3 = Color3.fromRGB(24,24,24)
+content.BorderSizePixel = 0
+Instance.new("UICorner", content).CornerRadius = UDim.new(0,12)
+
+local cpad = Instance.new("UIPadding", content)
+cpad.PaddingTop = UDim.new(0,10)
+
+local clayout = Instance.new("UIListLayout", content)
+clayout.Padding = UDim.new(0,10)
+clayout.HorizontalAlignment = Center
+
+-- TAB BUTTON
+local function Tab(name, cb)
+    local b = Instance.new("TextButton", tabs)
+    b.Size = UDim2.new(1,-20,0,40)
+    b.BackgroundColor3 = Color3.fromRGB(45,45,45)
+    b.Text = name
+    b.Font = Enum.Font.GothamBold
+    b.TextSize = 14
+    b.TextColor3 = Color3.fromRGB(255,255,255)
+    b.BorderSizePixel = 0
+    Instance.new("UICorner", b).CornerRadius = UDim.new(0,10)
+    b.MouseButton1Click:Connect(cb)
+end
+
+-- CLEAR CONTENT
+local function Clear()
+    for _,v in ipairs(content:GetChildren()) do
+        if v:IsA("TextButton") then v:Destroy() end
+    end
+end
+
+-- TOGGLE (Speed Hub style)
+local function Toggle(txt)
+    local on = false
+    local b = Instance.new("TextButton", content)
+    b.Size = UDim2.new(1,-30,0,42)
+    b.BackgroundColor3 = Color3.fromRGB(60,60,60)
+    b.Text = "OFF  |  "..txt
+    b.Font = Enum.Font.Gotham
+    b.TextSize = 14
+    b.TextColor3 = Color3.fromRGB(255,255,255)
+    b.BorderSizePixel = 0
+    Instance.new("UICorner", b).CornerRadius = UDim.new(0,10)
+
+    b.MouseButton1Click:Connect(function()
+        on = not on
+        b.Text = (on and "ON   |  " or "OFF  |  ")..txt
+        b.BackgroundColor3 = on and Color3.fromRGB(0,180,120) or Color3.fromRGB(60,60,60)
+    end)
+end
+
+-- PAGES
+local function Farming()
+    Clear()
+    Toggle("Auto Farm")
+    Toggle("Auto Quest")
+    Toggle("Bring Mob")
+    Toggle("Auto Haki")
+    Toggle("Auto Skill")
+end
+
+local function Player()
+    Clear()
+    Toggle("Infinite Energy")
+    Toggle("No Cooldown")
+end
+
+local function Teleport()
+    Clear()
+    Toggle("Teleport Island")
+end
+
+Tab("Farming", Farming)
+Tab("Player", Player)
+Tab("Teleport", Teleport)
+Farming()
+
+print("QasyrStore HUB Loaded")

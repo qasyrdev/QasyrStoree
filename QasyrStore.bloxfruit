@@ -1,0 +1,180 @@
+--[[ 
+   QasyrStore HUB
+   Blox Fruits | GUI + All Features
+]]
+
+repeat wait() until game:IsLoaded()
+
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local VirtualUser = game:GetService("VirtualUser")
+
+-- Anti AFK
+player.Idled:Connect(function()
+    VirtualUser:Button2Down(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+    wait(1)
+    VirtualUser:Button2Up(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+end)
+
+-- SETTINGS
+getgenv().Settings = {
+    AutoFarm = false,
+    AutoHaki = false,
+    AutoSkill = false,
+    BringMob = false,
+    AutoStats = false,
+    AutoBoss = false
+}
+
+-- Create GUI
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "QasyrStoreGUI"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = player:WaitForChild("PlayerGui")
+
+local MainFrame = Instance.new("Frame")
+MainFrame.Size = UDim2.new(0, 300, 0, 400)
+MainFrame.Position = UDim2.new(0, 50, 0, 50)
+MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+MainFrame.BorderSizePixel = 0
+MainFrame.Parent = ScreenGui
+
+local UIListLayout = Instance.new("UIListLayout")
+UIListLayout.Parent = MainFrame
+UIListLayout.Padding = UDim.new(0,5)
+
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(1,0,0,50)
+Title.Text = "QasyrStore HUB"
+Title.TextColor3 = Color3.fromRGB(255,255,255)
+Title.TextScaled = true
+Title.BackgroundColor3 = Color3.fromRGB(40,40,40)
+Title.Parent = MainFrame
+
+-- Button generator
+function CreateToggleButton(name, setting)
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(1, -10, 0, 50)
+    btn.Text = name.." : OFF"
+    btn.BackgroundColor3 = Color3.fromRGB(50,50,50)
+    btn.TextColor3 = Color3.fromRGB(255,255,255)
+    btn.TextScaled = true
+    btn.Parent = MainFrame
+
+    btn.MouseButton1Click:Connect(function()
+        getgenv().Settings[setting] = not getgenv().Settings[setting]
+        btn.Text = name.." : "..(getgenv().Settings[setting] and "ON" or "OFF")
+    end)
+end
+
+-- Create toggle buttons
+CreateToggleButton("Auto Farm","AutoFarm")
+CreateToggleButton("Auto Haki","AutoHaki")
+CreateToggleButton("Auto Skill","AutoSkill")
+CreateToggleButton("Bring Mob","BringMob")
+CreateToggleButton("Auto Stats","AutoStats")
+CreateToggleButton("Auto Boss","AutoBoss")
+
+-- FUNCTIONS
+function EquipWeapon()
+    for _,v in pairs(player.Backpack:GetChildren()) do
+        if v:IsA("Tool") then
+            player.Character.Humanoid:EquipTool(v)
+            return
+        end
+    end
+end
+
+function Attack()
+    VirtualUser:Button1Down(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+    wait(0.05)
+    VirtualUser:Button1Up(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+end
+
+function UseSkill()
+    local vim = game:GetService("VirtualInputManager")
+    vim:SendKeyEvent(true,"Z",false,game)
+    vim:SendKeyEvent(true,"X",false,game)
+    vim:SendKeyEvent(true,"C",false,game)
+    vim:SendKeyEvent(true,"V",false,game)
+end
+
+function Bring(mob)
+    mob.HumanoidRootPart.Size = Vector3.new(50,50,50)
+    mob.HumanoidRootPart.Transparency = 1
+    mob.HumanoidRootPart.CanCollide = false
+    mob.HumanoidRootPart.CFrame = player.Character.HumanoidRootPart.CFrame * CFrame.new(0,0,-5)
+end
+
+-- AUTO HAKI
+spawn(function()
+    while wait(1) do
+        if getgenv().Settings.AutoHaki then
+            if not player.Character:FindFirstChild("HasBuso") then
+                pcall(function()
+                    ReplicatedStorage.Remotes.CommF_:InvokeServer("Buso")
+                end)
+            end
+        end
+    end
+end)
+
+-- AUTO STATS
+spawn(function()
+    while wait(0.5) do
+        if getgenv().Settings.AutoStats then
+            pcall(function()
+                ReplicatedStorage.Remotes.CommF_:InvokeServer("AddPoint","Melee",1)
+                ReplicatedStorage.Remotes.CommF_:InvokeServer("AddPoint","Defense",1)
+            end)
+        end
+    end
+end)
+
+-- MAIN AUTO FARM LOOP
+spawn(function()
+    while wait() do
+        if getgenv().Settings.AutoFarm then
+            pcall(function()
+                EquipWeapon()
+                for _,mob in pairs(workspace.Enemies:GetChildren()) do
+                    if mob:FindFirstChild("Humanoid") and mob.Humanoid.Health > 0 then
+                        repeat
+                            player.Character.HumanoidRootPart.CFrame =
+                                mob.HumanoidRootPart.CFrame * CFrame.new(0,0,5)
+                            if getgenv().Settings.BringMob then
+                                Bring(mob)
+                            end
+                            if getgenv().Settings.AutoSkill then
+                                UseSkill()
+                            end
+                            Attack()
+                            wait()
+                        until mob.Humanoid.Health <= 0 or not getgenv().Settings.AutoFarm
+                    end
+                end
+            end)
+        end
+    end
+end)
+
+-- AUTO BOSS
+spawn(function()
+    while wait(3) do
+        if getgenv().Settings.AutoBoss then
+            for _,boss in pairs(workspace.Enemies:GetChildren()) do
+                if boss.Name:find("Boss") then
+                    repeat
+                        player.Character.HumanoidRootPart.CFrame =
+                            boss.HumanoidRootPart.CFrame * CFrame.new(0,0,8)
+                        Attack()
+                        wait()
+                    until boss.Humanoid.Health <= 0
+                end
+            end
+        end
+    end
+end)
+
+print("✅ QasyrStore HUB GUI Loaded")

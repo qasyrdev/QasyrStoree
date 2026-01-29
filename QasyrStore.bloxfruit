@@ -1,0 +1,131 @@
+--[[ 
+   QasyrStore HUB
+   Blox Fruits | All In One
+]]
+
+repeat wait() until game:IsLoaded()
+
+-- SETTINGS
+getgenv().Settings = {
+    AutoFarm = true,
+    AutoQuest = true,
+    BringMob = true,
+    AutoHaki = true,
+    AutoSkill = true,
+    AutoStats = true,
+    AutoBoss = false
+}
+
+local Players = game:GetService("Players")
+local VirtualUser = game:GetService("VirtualUser")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local player = Players.LocalPlayer
+
+-- Anti AFK
+player.Idled:Connect(function()
+    VirtualUser:Button2Down(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+    wait(1)
+    VirtualUser:Button2Up(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+end)
+
+-- Equip Weapon
+function EquipWeapon()
+    for _,v in pairs(player.Backpack:GetChildren()) do
+        if v:IsA("Tool") then
+            player.Character.Humanoid:EquipTool(v)
+            return
+        end
+    end
+end
+
+-- Auto Haki
+spawn(function()
+    while wait(1) do
+        if Settings.AutoHaki then
+            if not player.Character:FindFirstChild("HasBuso") then
+                ReplicatedStorage.Remotes.CommF_:InvokeServer("Buso")
+            end
+        end
+    end
+end)
+
+-- Auto Stats
+spawn(function()
+    while wait(0.5) do
+        if Settings.AutoStats then
+            ReplicatedStorage.Remotes.CommF_:InvokeServer("AddPoint","Melee",1)
+            ReplicatedStorage.Remotes.CommF_:InvokeServer("AddPoint","Defense",1)
+        end
+    end
+end)
+
+-- Auto Skill
+function UseSkill()
+    local vim = game:GetService("VirtualInputManager")
+    vim:SendKeyEvent(true,"Z",false,game)
+    vim:SendKeyEvent(true,"X",false,game)
+    vim:SendKeyEvent(true,"C",false,game)
+    vim:SendKeyEvent(true,"V",false,game)
+end
+
+-- Bring Mob
+function Bring(mob)
+    mob.HumanoidRootPart.Size = Vector3.new(50,50,50)
+    mob.HumanoidRootPart.Transparency = 1
+    mob.HumanoidRootPart.CanCollide = false
+    mob.HumanoidRootPart.CFrame = player.Character.HumanoidRootPart.CFrame * CFrame.new(0,0,-5)
+end
+
+-- Attack
+function Attack()
+    VirtualUser:Button1Down(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+    wait(0.05)
+    VirtualUser:Button1Up(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+end
+
+-- MAIN AUTO FARM
+spawn(function()
+    while wait() do
+        if Settings.AutoFarm then
+            pcall(function()
+                EquipWeapon()
+                for _,mob in pairs(workspace.Enemies:GetChildren()) do
+                    if mob:FindFirstChild("Humanoid") and mob.Humanoid.Health > 0 then
+                        repeat
+                            player.Character.HumanoidRootPart.CFrame =
+                                mob.HumanoidRootPart.CFrame * CFrame.new(0,0,5)
+                            if Settings.BringMob then
+                                Bring(mob)
+                            end
+                            if Settings.AutoSkill then
+                                UseSkill()
+                            end
+                            Attack()
+                            wait()
+                        until mob.Humanoid.Health <= 0 or not Settings.AutoFarm
+                    end
+                end
+            end)
+        end
+    end
+end)
+
+-- AUTO BOSS
+spawn(function()
+    while wait(3) do
+        if Settings.AutoBoss then
+            for _,boss in pairs(workspace.Enemies:GetChildren()) do
+                if boss.Name:find("Boss") then
+                    repeat
+                        player.Character.HumanoidRootPart.CFrame =
+                            boss.HumanoidRootPart.CFrame * CFrame.new(0,0,8)
+                        Attack()
+                        wait()
+                    until boss.Humanoid.Health <= 0
+                end
+            end
+        end
+    end
+end)
+
+print("✅ QasyrStore HUB Loaded")

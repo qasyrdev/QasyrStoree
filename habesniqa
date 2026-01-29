@@ -1,0 +1,130 @@
+-- QASYRSTORE HUB | QUANTUM-STYLE UI (WORKING GUI)
+-- GUI FIRST, FEATURES LATER
+
+local Players = game:GetService("Players")
+local Player = Players.LocalPlayer
+local PlayerGui = Player:WaitForChild("PlayerGui")
+
+-- Remove old GUI if exist
+pcall(function()
+    PlayerGui:FindFirstChild("QasyrStoreHub"):Destroy()
+end)
+
+-- ScreenGui
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "QasyrStoreHub"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = PlayerGui
+
+-- Main Frame
+local Main = Instance.new("Frame")
+Main.Size = UDim2.fromScale(0.6, 0.6)
+Main.Position = UDim2.fromScale(0.2, 0.2)
+Main.BackgroundColor3 = Color3.fromRGB(18,18,18)
+Main.BorderSizePixel = 0
+Main.Parent = ScreenGui
+Main.Active = true
+Main.Draggable = true
+
+Instance.new("UICorner", Main).CornerRadius = UDim.new(0,14)
+
+-- Title
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(1,0,0,45)
+Title.BackgroundTransparency = 1
+Title.Text = "QasyrStore HUB"
+Title.TextColor3 = Color3.fromRGB(255,255,255)
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 20
+Title.Parent = Main
+
+-- Left Panel (Tabs)
+local Tabs = Instance.new("Frame")
+Tabs.Size = UDim2.new(0.25,0,1,-45)
+Tabs.Position = UDim2.new(0,0,0,45)
+Tabs.BackgroundColor3 = Color3.fromRGB(22,22,22)
+Tabs.BorderSizePixel = 0
+Tabs.Parent = Main
+Instance.new("UICorner", Tabs).CornerRadius = UDim.new(0,14)
+
+-- Right Panel (Content)
+local Content = Instance.new("Frame")
+Content.Size = UDim2.new(0.75,-10,1,-55)
+Content.Position = UDim2.new(0.25,10,0,50)
+Content.BackgroundColor3 = Color3.fromRGB(25,25,25)
+Content.BorderSizePixel = 0
+Content.Parent = Main
+Instance.new("UICorner", Content).CornerRadius = UDim.new(0,14)
+
+-- Layouts
+local TabLayout = Instance.new("UIListLayout", Tabs)
+TabLayout.Padding = UDim.new(0,8)
+TabLayout.HorizontalAlignment = Center
+TabLayout.VerticalAlignment = Top
+
+local ContentLayout = Instance.new("UIListLayout", Content)
+ContentLayout.Padding = UDim.new(0,10)
+ContentLayout.HorizontalAlignment = Center
+ContentLayout.VerticalAlignment = Top
+
+-- Padding
+Instance.new("UIPadding", Tabs).PaddingTop = UDim.new(0,10)
+Instance.new("UIPadding", Content).PaddingTop = UDim.new(0,10)
+
+-- Function create Tab
+local function createTab(name)
+    local b = Instance.new("TextButton")
+    b.Size = UDim2.new(1,-20,0,40)
+    b.Text = name
+    b.Font = Enum.Font.GothamBold
+    b.TextSize = 14
+    b.TextColor3 = Color3.fromRGB(255,255,255)
+    b.BackgroundColor3 = Color3.fromRGB(35,35,35)
+    b.BorderSizePixel = 0
+    b.Parent = Tabs
+    Instance.new("UICorner", b).CornerRadius = UDim.new(0,8)
+    return b
+end
+
+-- Function create Toggle
+local function createToggle(text)
+    local t = Instance.new("TextButton")
+    t.Size = UDim2.new(1,-30,0,40)
+    t.Text = "OFF | "..text
+    t.Font = Enum.Font.Gotham
+    t.TextSize = 14
+    t.TextColor3 = Color3.fromRGB(255,255,255)
+    t.BackgroundColor3 = Color3.fromRGB(40,40,40)
+    t.BorderSizePixel = 0
+    t.Parent = Content
+    Instance.new("UICorner", t).CornerRadius = UDim.new(0,8)
+
+    local on = false
+    t.MouseButton1Click:Connect(function()
+        on = not on
+        t.Text = (on and "ON  | " or "OFF | ")..text
+        t.BackgroundColor3 = on and Color3.fromRGB(0,170,127) or Color3.fromRGB(40,40,40)
+    end)
+end
+
+-- Tabs
+local FarmingTab = createTab("Farming")
+local PlayerTab  = createTab("Player")
+local TeleportTab = createTab("Teleport")
+
+-- Load Farming Content
+local function loadFarming()
+    for _,v in pairs(Content:GetChildren()) do
+        if v:IsA("TextButton") then v:Destroy() end
+    end
+    createToggle("Auto Farm")
+    createToggle("Auto Quest")
+    createToggle("Bring Mob")
+    createToggle("Auto Haki")
+    createToggle("Auto Skill")
+end
+
+FarmingTab.MouseButton1Click:Connect(loadFarming)
+loadFarming()
+
+print("QasyrStore HUB GUI LOADED SUCCESSFULLY")
